@@ -1,0 +1,38 @@
+FROM python:3.11-alpine
+
+# Установка зависимостей
+RUN apk update && apk add --no-cache \
+    chromium \
+    chromium-chromedriver \
+    tzdata \
+    curl \
+    openjdk11-jre \
+    tar \
+    bash \
+    wget
+
+# Установка Allure
+RUN curl -Ls https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/2.13.8/allure-commandline-2.13.8.tgz \
+    -o allure.tgz && \
+    tar -zxvf allure.tgz -C /opt/ && \
+    ln -s /opt/allure-2.13.8/bin/allure /usr/bin/allure && \
+    rm -f allure.tgz
+
+# Настройка рабочей директории
+WORKDIR /usr/workspace
+
+# Копирование зависимостей
+COPY ./requirements.txt /usr/workspace
+
+# Установка Python зависимостей
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+
+WORKDIR /usr/workspace
+
+# Copy the dependencies file to the working directory
+COPY ./requirements.txt /usr/workspace
+
+# Install Python dependencies
+RUN pip3 install -r requirements.txt
